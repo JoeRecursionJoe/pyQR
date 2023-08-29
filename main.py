@@ -1,6 +1,7 @@
 import qrcode
 from tkinter import *
 from tkinter import messagebox
+from PIL import Image, ImageFont, ImageDraw
 
 win = Tk()
 win.title("Joe's QR Code Generator")
@@ -12,8 +13,8 @@ window_width = 900
 screen_width = win.winfo_screenwidth()
 screen_height = win.winfo_screenheight()
 
-x_cordinate = int((screen_width/2) - (window_width/2))
-y_cordinate = int((screen_height/2) - (window_height/2))
+x_cordinate = int((screen_width / 2) - (window_width / 2))
+y_cordinate = int((screen_height / 2) - (window_height / 2))
 
 win.geometry("{}x{}+{}+{}".format(window_width, window_height, x_cordinate, y_cordinate))
 
@@ -25,11 +26,22 @@ def generateCode():
     qr = qrcode.QRCode(version=size.get(),
                        box_size=10,
                        border=5)
-    qr.add_data(text.get())  # Adding the data to be encoded to the QRCode object
+    qr.add_data(text.get() + name.get() + ".aspx")  # Adding the data to be encoded to the QRCode object
     qr.make(fit=True)  # Making the entire QR Code space utilized
     img = qr.make_image()  # Generating the QR Code
+
+    mf = ImageFont.truetype('arial.ttf', 25)
+    newsize = img.pixel_size + 30
+
+    background = Image.new('RGBA', (newsize, newsize), (255, 255, 255, 255))
+    draw = ImageDraw.Draw(background)
+
+    background.paste(img, (15, 0))
+    draw.text((newsize / 2, newsize - 30), name.get() + " Documentation", (0, 0, 0), font=mf, anchor="ms")
+
     file_direc = loc.get() + '\\' + name.get()  # Getting the directory where the file has to be save
-    img.save(f'{file_direc}.png')  # Saving the QR Code
+    background.save(f'{file_direc}-QR.png')
+
     # Showing the pop up message on saving the file
     messagebox.showinfo("QR Code Generator", "QR Code is saved successfully!")
 
@@ -45,9 +57,10 @@ frame1 = Frame(win, bg="SteelBlue3")
 frame1.place(relx=0.1, rely=0.15, relwidth=0.7, relheight=0.3)
 label1 = Label(frame1, text="Enter the text/URL: ", bg="SteelBlue3", fg='azure', font=('Courier', 13, 'bold'))
 label1.place(relx=0.05, rely=0.2, relheight=0.08)
-text = Entry(frame1, font='Century 12')
+joe="LL"
+text = Entry(frame1, font='Century 12', textvariable=joe)
 text.place(relx=0.05, rely=0.4, relwidth=1, relheight=0.2)
-text.insert(END, "https://precisionresource.sharepoint.com/teams/PRBPublic/SitePages/??.aspx")
+text.insert(END, "https://precisionresource.sharepoint.com/teams/PRBPublic/SitePages/")
 
 # Getting input of the location to save QR Code
 frame2 = Frame(win, bg="SteelBlue3")
